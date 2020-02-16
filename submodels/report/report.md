@@ -5,19 +5,12 @@ Working notes
 library(icesTAF)
 library(ggplot2)
 library(mgcv)
-```
-
-    ## Loading required package: nlme
-
-    ## This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.
-
-``` r
 taf.library(FLCore)
 taf.library(FLa4a)
 cat("buit on", date())
 ```
 
-    ## buit on Sun Feb 16 16:56:13 2020
+    ## buit on Sun Feb 16 17:13:39 2020
 
 ## Model building and simulating
 
@@ -59,7 +52,7 @@ ggplot(
   labs(title = "Samples from the q model space (log scale with Intercept = 0)")
 ```
 
-![](d:/projects/git/flr/FLa4a.tests.taf/submodels/report/report_files/figure-gfm/fitted-values-1.png)<!-- -->
+![](report_files/figure-gfm/fitted-values-1.png)<!-- -->
 
 ### Constraining q above a fixed age
 
@@ -95,7 +88,7 @@ ggplot(
   labs(title = "Samples from the q model space (log scale with Intercept = 0)")
 ```
 
-![](d:/projects/git/flr/FLa4a.tests.taf/submodels/report/report_files/figure-gfm/fitted-values2-1.png)<!-- -->
+![](report_files/figure-gfm/fitted-values2-1.png)<!-- -->
 
 an alternative to fixing the age in the formula is to supply a truncated
 age as a covariate. This is done by adding a data.frame of covariates to
@@ -134,7 +127,7 @@ ggplot(
   labs(title = "Samples from the q model space (log scale with Intercept = 0)")
 ```
 
-![](d:/projects/git/flr/FLa4a.tests.taf/submodels/report/report_files/figure-gfm/new-submodel-with-covars-1.png)<!-- -->
+![](report_files/figure-gfm/new-submodel-with-covars-1.png)<!-- -->
 
 ### filling out over years
 

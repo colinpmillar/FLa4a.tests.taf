@@ -8,4 +8,7 @@ library(rmarkdown)
 
 mkdir("report")
 
-rmarkdown::render("report.Rmd", output_dir = "report")
+render("report.Rmd")
+
+cp("report.md", "report", move = TRUE)
+cp("report_files", "report", move = TRUE)
