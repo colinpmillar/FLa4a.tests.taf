@@ -1,0 +1,17 @@
+---
+title: "Working notes"
+output:
+  github_document:
+    html_preview: false
+---
+
+```{r setup}
+library(icesTAF)
+library(ggplot2)
+library(mgcv)
+taf.library(FLCore)
+taf.library(FLa4a)
+cat("buit on", date())
+```
+
+## Model missing catches at age
