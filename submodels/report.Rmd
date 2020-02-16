@@ -130,4 +130,41 @@ ggplot(
 ### filling out over years
 
 In order to create a q model that operates over several years, it is
-just a case of extending the range of the submodel
+just a case of extending the range of the submodel, for example, to
+create a q submodel for the catcability of a `FLIndex` such as
+
+```{r extend-across-years}
+data(ple4.index)
+qbts <-
+  submodel(
+    name = name(ple4.index),
+    range = range(ple4.index),
+    formula = ~ s(age_trunc, k = 4)
+  )
+
+data <- as.data.frame(qmod2, drop = TRUE)
+data$age_trunc <- replace(data$age, data$age > 8, 8)
+
+qbts <-
+  submodel(
+    qbts,
+    covariates = data
+  )
+vcov(qbts)["(Intercept)", "(Intercept)", 1] <- 0
+
+qbts
+
+ggplot(
+  as.data.frame(
+    genFLQuant(qbts, nsim = 50, seed = 1323)
+  ),
+  aes(x = age, y = data, group = iter, colour = iter)
+) +
+  geom_line(alpha = 0.3) +
+  facet_wrap(~ year) +
+  labs(
+    title =
+      "Samples from the q model space (log scale with Intercept = 0)"
+  ) +
+  theme(legend.position="none")
+```

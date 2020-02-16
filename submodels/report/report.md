@@ -10,7 +10,7 @@ taf.library(FLa4a)
 cat("buit on", date())
 ```
 
-    ## buit on Sun Feb 16 17:13:39 2020
+    ## buit on Sun Feb 16 17:21:50 2020
 
 ## Model building and simulating
 
@@ -132,4 +132,52 @@ ggplot(
 ### filling out over years
 
 In order to create a q model that operates over several years, it is
-just a case of extending the range of the submodel
+just a case of extending the range of the submodel, for example, to
+create a q submodel for the catcability of a `FLIndex` such as
+
+``` r
+data(ple4.index)
+qbts <-
+  submodel(
+    name = name(ple4.index),
+    range = range(ple4.index),
+    formula = ~ s(age_trunc, k = 4)
+  )
+
+data <- as.data.frame(qmod2, drop = TRUE)
+data$age_trunc <- replace(data$age, data$age > 8, 8)
+
+qbts <-
+  submodel(
+    qbts,
+    covariates = data
+  )
+vcov(qbts)["(Intercept)", "(Intercept)", 1] <- 0
+
+qbts
+```
+
+    ## BTS-Combined (all):
+    ##   formula: ~s(age_trunc, k = 4)
+    ##   range: (1 - 10), years: (1996 - 2017).
+    ##   coef, iters = 1:
+    ##    (Intercept) s(age_trunc).1 s(age_trunc).2 s(age_trunc).3 
+    ##              0              0              0              0
+
+``` r
+ggplot(
+  as.data.frame(
+    genFLQuant(qbts, nsim = 50, seed = 1323)
+  ),
+  aes(x = age, y = data, group = iter, colour = iter)
+) +
+  geom_line(alpha = 0.3) +
+  facet_wrap(~ year) +
+  labs(
+    title =
+      "Samples from the q model space (log scale with Intercept = 0)"
+  ) +
+  theme(legend.position="none")
+```
+
+![](report_files/figure-gfm/extend-across-years-1.png)<!-- -->
