@@ -17,15 +17,6 @@ if (FALSE) {
   devtools::load_all(pkg)
 }
 
-# create F model
-fmod <-
-  submodel(
-    name = "f-at-age",
-    range = range(ple4),
-    formula = ~ s(age, k = 4) + s(year, k = 10)
-  )
-plot(genFLQuant(fmod, nsim = 100)) + facet_wrap( ~ age)
-
 # create Q models
 qmod <-
   submodels(
@@ -42,28 +33,56 @@ plot(genFLQuant(qmod, nsim = 100)) +
   aes(x = age, y = data) +
   facet_wrap(~ qname)
 
+# create F model
+fmod <-
+  submodel(
+    name = "f",
+    range = range(ple4),
+    formula = ~ s(age, k = 4) + s(year, k = 10)
+  )
+plot(genFLQuant(fmod, nsim = 100)) + facet_wrap( ~ age)
+
 # create initial population structure model
 n1range <- range(ple4)[c("min", "max", "minyear", "maxyear")]
 n1range["maxyear"] <- n1range["minyear"]
 n1mod <-
   submodel(
-    name = "initial-age-structure",
+    name = "n1",
     range = n1range,
     formula = ~ s(age, k = 4)
   )
 # plot and override default aes and facet_wrap
-plot(genFLQuant(qmod, nsim = 100)) +
+plot(genFLQuant(n1mod, nsim = 100)) +
   aes(x = age, y = data) +
   facet_wrap( ~ "age")
 
-# create recruitment model
-rrange <- range(ple4)[c("min", "max", "minyear", "maxyear")]
-rrange["max"] <- rrange["min"]
-rmod <-
+# create stock recruitment model
+srrange <- range(ple4)[c("min", "max", "minyear", "maxyear")]
+srrange["max"] <- srrange["min"]
+srrange["minyear"] <- srrange["minyear"] + 1
+srmod <-
   submodel(
-    name = "recruitment",
-    range = rrange,
+    name = "sr",
+    range = srrange,
     formula = ~ factor(year) - 1
   )
 # plot and override default aes and facet_wrap
-plot(genFLQuant(rmod, nsim = 100))
+plot(genFLQuant(srmod, nsim = 100))
+
+# now build a stk_model
+stkmod <-
+  new(
+    "stk_submodel",
+    range = range(ple4),
+    fmod = fmod,
+    n1mod = n1mod,
+    srmod = srmod,
+    m = m(ple4),
+    mat = mat(ple4),
+    stock.wt = stock.wt(ple4)
+  )
+
+#
+stk_sub <- as(stkmod, "submodels")
+
+stk_sim <- genFLQuant(as(stkmod, "submodels"), nsim = 100)
