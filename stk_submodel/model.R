@@ -61,14 +61,15 @@ srrange <- range(ple4)[c("min", "max", "minyear", "maxyear")]
 srrange["max"] <- srrange["min"]
 srrange["minyear"] <- srrange["minyear"] + 1
 srmod <-
-  submodel(
-    name = "sr",
+  sr_submodel(
+    name = "my sr model",
     range = srrange,
-    formula = ~ factor(year) - 1
+    formula = ~ bevholt(a = ~ s(year, k = 3), CV=0.2)
   )
 # plot and override default aes and facet_wrap
 plot(genFLQuant(srmod, nsim = 100))
 
+devtools::load_all(pkg)
 # now build a stk_model
 stkmod <-
   new(
