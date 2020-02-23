@@ -72,18 +72,32 @@ plot(genFLQuant(srmod, nsim = 100))
 devtools::load_all(pkg)
 # now build a stk_model
 stkmod <-
-  new(
-    "stk_submodel",
+  stk_submodel(
+    name = "my stock model",
     range = range(ple4),
     fmod = fmod,
     n1mod = n1mod,
     srmod = srmod,
     m = m(ple4),
     mat = mat(ple4),
-    stock.wt = stock.wt(ple4)
+    stock.wt = stock.wt(ple4),
+    catch.wt = catch.wt(ple4),
+    harvest.spwn = harvest.spwn(ple4),
+    m.spwn = m.spwn(ple4)
   )
 
 #
-stk_sub <- as(stkmod, "submodels")
+stk_sim <- genFLQuant(stkmod, nsim = 100)
+names(stk_sim)
 
-stk_sim <- genFLQuant(as(stkmod, "submodels"), nsim = 100)
+devtools::load_all(pkg)
+stk_sim <- genFLStock(stkmod, nsim = 100)
+plot(stk_sim)
+
+stk_sim <-
+  genFLStock(
+    stkmod,
+    nsim = 100,
+    simulate.recruitment = TRUE
+  )
+plot(stk_sim)
