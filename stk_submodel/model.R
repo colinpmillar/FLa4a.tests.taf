@@ -38,9 +38,11 @@ fmod <-
   submodel(
     name = "f",
     range = range(ple4),
-    formula = ~ s(age, k = 4) + s(year, k = 10)
+    #formula = ~ s(age, k = 4) + s(year, k = 10)
+    formula = ~ 1, coefficients = -2
   )
-plot(genFLQuant(fmod, nsim = 100)) + facet_wrap( ~ age)
+plot(genFLQuant(fmod, nsim = 100, type = "response")) +
+  facet_wrap( ~ age)
 
 # create initial population structure model
 n1range <- range(ple4)[c("min", "max", "minyear", "maxyear")]
@@ -49,10 +51,12 @@ n1mod <-
   submodel(
     name = "n1",
     range = n1range,
-    formula = ~ s(age, k = 4)
+    formula = ~ s(age, k = 4),
+    coefficients = c(20, 0, 0, -.8)
   )
+vcov(n1mod)[] <- diag(0.01, 4)
 # plot and override default aes and facet_wrap
-plot(genFLQuant(n1mod, nsim = 100)) +
+plot(genFLQuant(n1mod, nsim = 100, type = "response")) +
   aes(x = age, y = data) +
   facet_wrap( ~ "age")
 
@@ -66,6 +70,21 @@ srmod <-
     range = srrange,
     formula = ~ bevholt(a = ~ s(year, k = 3), CV=0.2)
   )
+srmod_copy <- srmod
+srmod_copy$a <-
+  submodel(
+    srmod$a,
+    coefficients = c(21, 0, 0),
+    vcov = diag(0.001, 3)
+  )
+srmod_copy$b <-
+  submodel(
+    srmod$b,
+    coefficients = -5
+  )
+
+srmod@.Data <- srmod_copy@.Data
+
 # plot and override default aes and facet_wrap
 plot(genFLQuant(srmod, nsim = 100))
 
@@ -100,4 +119,4 @@ stk_sim <-
     nsim = 100,
     simulate.recruitment = TRUE
   )
-plot(stk_sim)
+plot(stk_sim, iter = 1:10)
