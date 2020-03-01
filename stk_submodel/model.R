@@ -68,27 +68,14 @@ srmod <-
   sr_submodel(
     name = "my sr model",
     range = srrange,
-    formula = ~ bevholt(a = ~ s(year, k = 3), CV=0.2)
+    formula = ~ geomean(a = ~ s(year, k = 3), CV=0.2)
   )
-srmod_copy <- srmod
-srmod_copy$a <-
-  submodel(
-    srmod$a,
-    coefficients = c(21, 0, 0),
-    vcov = diag(0.001, 3)
-  )
-srmod_copy$b <-
-  submodel(
-    srmod$b,
-    coefficients = -5
-  )
-
-srmod@.Data <- srmod_copy@.Data
-
+# add coefficients to a and b submodels
+coef(srmod$a) <- c(20.2, 0, 0)
+vcov(srmod$a) <- diag(0.001, 3)
 # plot and override default aes and facet_wrap
 plot(genFLQuant(srmod, nsim = 100))
 
-devtools::load_all(pkg)
 # now build a stk_model
 stkmod <-
   stk_submodel(
@@ -105,18 +92,21 @@ stkmod <-
     m.spwn = m.spwn(ple4)
   )
 
-#
-stk_sim <- genFLQuant(stkmod, nsim = 100)
-names(stk_sim)
+# if you simulate a stock with simulate.recruitment at the default
+# value of FALSE, then the rmod submodel will be used to generate
+# recruitment - so lets modify coefs for recruitment
+coef(stkmod$rmod)[] <- 20.2
+plot(genFLStock(stkmod, nsim = 100))
 
+
+coef(stkmod$sramod) <- c(22, 2, -1)
+plot(genFLQuant(stkmod$sramod, type = "response"))
 devtools::load_all(pkg)
-stk_sim <- genFLStock(stkmod, nsim = 100)
-plot(stk_sim)
-
-stk_sim <-
+plot(
   genFLStock(
     stkmod,
     nsim = 100,
     simulate.recruitment = TRUE
-  )
-plot(stk_sim, iter = 1:10)
+  ),
+  iter = 1:10
+)
